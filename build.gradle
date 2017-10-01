@@ -1,0 +1,50 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'maven'
+
+group = project.property('group')
+version = project.property('version')
+
+repositories {
+
+    maven {
+        name 'Spigot Repo'
+        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+
+    maven {
+        name 'Bungeecord Repo'
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+
+    jcenter()
+}
+
+dependencies {
+    compile (group: 'net.md-5', name: 'bungeecord-api', version: '1.12-SNAPSHOT')
+    compile (group: 'org.spigotmc', name: 'spigot-api', version: '1.12.2-R0.1-SNAPSHOT')
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'plugin.yml'
+        // replace version and mcversion
+        expand 'version': project.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'plugin.yml'
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    //noinspection GroovyAssignabilityCheck
+    archives sourcesJar
+}

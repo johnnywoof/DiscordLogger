@@ -1,0 +1,4 @@
+name: DiscordLogger
+version: '$version'
+main: me.johnnywoof.discordlogger.bungee.BungeeLoader
+author: Johnnywoof
