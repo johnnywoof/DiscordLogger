@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'idea'
 apply plugin: 'maven'
 
 group = project.property('group')
@@ -29,7 +28,7 @@ processResources {
     inputs.property "version", project.version
 
     from(sourceSets.main.resources.srcDirs) {
-        include 'plugin.yml'
+        include 'plugin.yml', 'bungee.yml'
         // replace version and mcversion
         expand 'version': project.version
     }

@@ -1,0 +1,5 @@
+name: DiscordLogger
+version: '$version'
+main: me.johnnywoof.discordlogger.spigot.SpigotLoader
+author: Johnnywoof
+database: false

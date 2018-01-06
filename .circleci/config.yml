@@ -1,0 +1,44 @@
+# CircleCI version 2.0 build config file
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
+    steps:
+      - run:
+          name: Gradle version check
+          command: gradle -version
+
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "build.gradle" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: gradle dependencies
+
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+
+      - run:
+          name: Tests
+          command: gradle test
+
+      - run: gradle uploadArchives
+
+      - run:
+          name: Publish to GitHub Repository
+          working_directory: ~/mvn-repo
+          command: echo "$public_repo_deploy_key" > deploy.key.encoded && base64 -d deploy.key.encoded > deploy.key && rm deploy.key.encoded && chmod 600 deploy.key && eval `ssh-agent -s` && ssh-add deploy.key && git clone git@github.com:johnnywoof/MavenRepository.git && cd MavenRepository && git config user.email "example@example.com" && git config user.name "Build Server" && cp -r /tmp/repo/* . && git add * && git commit -m "Update project $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME" && git push origin && rm ../deploy.key

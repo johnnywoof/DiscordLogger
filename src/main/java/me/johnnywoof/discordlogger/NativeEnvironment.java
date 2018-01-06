@@ -1,15 +1,16 @@
 package me.johnnywoof.discordlogger;
 
-import java.nio.file.Path;
 import java.util.logging.Level;
 
 public interface NativeEnvironment {
 
-	void log(Level level, String message);
+    void log(Level level, String message);
 
-	Path dataFolder();
+    void saveDefaultConfig();
 
-	/* Schedulers */
-	void runAsync(Runnable runnable);
+    ConfigSettings getDiscordLoggerConfig();
+
+    /* Schedulers */
+    void runAsync(Runnable runnable);
 
 }

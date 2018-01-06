@@ -4,31 +4,47 @@ import java.io.PrintStream;
 
 public class ConsoleReaderPrintStream extends PrintStream {
 
-	private final PrintStream stream;
-	private StringBuilder currentLine = new StringBuilder();
+    private final DiscordLogger discordLogger;
+    private final PrintStream stream;
+    private StringBuilder currentLine = new StringBuilder();
 
-	public ConsoleReaderPrintStream(PrintStream out) {
-		super(out, true);
-		this.stream = out;
-	}
+    public ConsoleReaderPrintStream(DiscordLogger discordLogger, PrintStream out) {
+        super(out, true);
+        this.stream = out;
+        this.discordLogger = discordLogger;
+    }
 
-	@Override
-	public void write(int b) {
-		super.write(b);
-		this.currentLine.append((char) b);
-	}
+    @Override
+    public void write(int b) {
+        super.write(b);
+        this.currentLine.append((char) b);
+    }
 
-	@Override
-	public void flush() {
-		super.flush();
+    @Override
+    public void flush() {
+        super.flush();
 
-		//TODO Parse text in currentLine
+        String line = this.currentLine.toString();
+        String[] words = line.split(" ");
 
-		this.currentLine = new StringBuilder();
-	}
+        for (String word : words) {
 
-	public PrintStream getRawStream() {
-		return this.stream;
-	}
+            if (this.discordLogger.getKeywords().contains(word)) {
+
+                this.discordLogger.postMessage(
+                        this.discordLogger.getMessagePrefix() != null ? this.discordLogger.getMessagePrefix() + line : line
+                );
+
+                break;
+            }
+
+        }
+
+        this.currentLine = new StringBuilder();
+    }
+
+    public PrintStream getRawStream() {
+        return this.stream;
+    }
 
 }
