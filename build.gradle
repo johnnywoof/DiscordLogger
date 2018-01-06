@@ -44,6 +44,13 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 
 artifacts {
-    //noinspection GroovyAssignabilityCheck
     archives sourcesJar
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file://localhost/tmp/repo/")
+        }
+    }
 }
