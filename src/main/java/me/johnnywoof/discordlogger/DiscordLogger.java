@@ -33,7 +33,7 @@ public class DiscordLogger {
 
         this.nativeEnvironment.saveDefaultConfig();
 
-        ConfigSettings settings = this.nativeEnvironment.getConfig();
+        ConfigSettings settings = this.nativeEnvironment.getDiscordLoggerConfig();
 
         if (settings == null) {
             this.nativeEnvironment.log(Level.SEVERE, "Failed to load configuration settings");
