@@ -31,16 +31,46 @@ public class LogHandler extends Handler {
 
         if (this.discordContent.length() >= 2) {
 
-            this.discordLogger.postMessage(this.discordContent.substring(0, this.discordContent.length() - 2));
+            StringBuilder message;
+
+            if (this.discordContent.length() >= 2000) {
+
+                message = new StringBuilder();
+                String[] lines = this.discordContent.toString().split("\n");
+                int index = 0;
+
+                while (message.length() < 2000) {
+
+                    int size = lines[index].length();
+
+                    if ((message.length() + size) >= 2000)
+                        break;
+
+                    message.append(lines[index++]);
+
+                }
+
+            } else {
+                message = this.discordContent;
+                this.discordContent = new StringBuilder();
+            }
+
+            this.discordLogger.postMessage(message.toString());
             this.discordContent = new StringBuilder();
 
         }
 
     }
 
+    private boolean hasContentPending() {
+        return this.discordContent != null && this.discordContent.length() > 0;
+    }
+
     @Override
     public void close() throws SecurityException {
-        this.flush(); //Flush contents
+        for (int i = 0; this.hasContentPending() && i < 3; i++)// Burst limit. Just ignore everything else I guess
+            this.flush(); //Flush contents
+
         this.discordContent = null; //Release memory
     }
 
