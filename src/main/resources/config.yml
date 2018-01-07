@@ -4,7 +4,7 @@ discord-webhook-url: ''
 http-user-agent: 'DiscordLogger'
 
 # The prefix to prepend to the log message when submitting it to web hook
-message-prefix: '[DiscordLogger] '
+message-prefix: ''
 
 # The type of log levels to submit for Discord
 log-levels:

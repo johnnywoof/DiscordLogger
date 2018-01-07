@@ -6,7 +6,6 @@ import me.johnnywoof.discordlogger.DiscordLogger;
 import me.johnnywoof.discordlogger.LogHandler;
 import me.johnnywoof.discordlogger.NativeEnvironment;
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -96,7 +95,11 @@ public class BungeeLoader extends Plugin implements NativeEnvironment {
 
     @Override
     public void hookLogStreams() throws Exception {
-        BungeeCord.getInstance().getLogger().addHandler(new LogHandler(discordLogger));
+
+        LogHandler logHandler = new LogHandler(this.discordLogger);
+        logHandler.setFormatter(new BungeeLogFormatter());
+
+        BungeeCord.getInstance().getLogger().addHandler(logHandler);
     }
 
     @Override

@@ -15,7 +15,7 @@ public class LogHandler extends Handler {
     public void publish(LogRecord record) {
         if (this.discordLogger.getLoggedLevels().contains(record.getLevel())) {
 
-            String logMessage = this.getFormatter().formatMessage(record);
+            String logMessage = this.getFormatter() != null ? this.getFormatter().formatMessage(record) : record.getMessage();
 
             if (this.discordLogger.getMessagePrefix() != null) {
                 this.discordLogger.postMessage(this.discordLogger.getMessagePrefix() + logMessage);
