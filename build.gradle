@@ -20,6 +20,12 @@ repositories {
         }
     }
 
+    // Used for bungeecord chat API in spigot
+    maven {
+        name 'Sonatype'
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+
     jcenter()
 }
 
