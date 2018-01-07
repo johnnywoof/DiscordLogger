@@ -4,7 +4,6 @@ import me.johnnywoof.discordlogger.ConfigSettings;
 import me.johnnywoof.discordlogger.DiscordLogger;
 import me.johnnywoof.discordlogger.LogHandler;
 import me.johnnywoof.discordlogger.NativeEnvironment;
-import net.md_5.bungee.api.ProxyServer;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
