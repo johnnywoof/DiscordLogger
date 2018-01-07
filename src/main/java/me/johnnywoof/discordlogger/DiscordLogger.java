@@ -24,6 +24,7 @@ public class DiscordLogger {
     private String userAgent;
     private String messagePrefix;
     private Collection<Level> loggedLevels;
+    private long lastSent;
 
     public DiscordLogger(NativeEnvironment nativeEnvironment) {
         this.nativeEnvironment = nativeEnvironment;
@@ -115,35 +116,48 @@ public class DiscordLogger {
             //Add it to the throttle
             this.recentMessages.put(hash, System.currentTimeMillis());
 
-            this.nativeEnvironment.runAsync(() -> {
+            long diffSent = (System.currentTimeMillis() - this.lastSent);
 
-                try {
+            this.lastSent = System.currentTimeMillis();
 
-                    HttpsURLConnection con = (HttpsURLConnection) DiscordLogger.this.discordWebhookURL.openConnection();
+            if (diffSent <= 3000) { //Discord rate limit
 
-                    con.setRequestMethod("POST");
-                    con.setRequestProperty("User-Agent", DiscordLogger.this.userAgent);
+                //Wait three seconds then retry
+                this.nativeEnvironment.runAsyncDelayed(() -> postMessage(message), 3, TimeUnit.SECONDS);
 
-                    con.setDoOutput(true);
-                    DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                    wr.writeBytes(new Gson().toJson(new Snowflake(message)));
-                    wr.flush();
-                    wr.close();
+            } else {
 
-                    int responseCode = con.getResponseCode();
+                this.nativeEnvironment.runAsync(() -> {
 
-                    if (responseCode != 204) {
-                        DiscordLogger.this.nativeEnvironment.log(Level.WARNING, "Discord responded with HTTP response code " + responseCode);
+                    try {
+
+                        HttpsURLConnection con = (HttpsURLConnection) DiscordLogger.this.discordWebhookURL.openConnection();
+
+                        con.setRequestMethod("POST");
+                        con.setRequestProperty("User-Agent", DiscordLogger.this.userAgent);
+
+                        con.setDoOutput(true);
+                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+                        wr.writeBytes(new Gson().toJson(new Snowflake(message)));
+                        wr.flush();
+                        wr.close();
+
+                        int responseCode = con.getResponseCode();
+
+                        if (responseCode != 204) {
+                            DiscordLogger.this.nativeEnvironment.log(Level.WARNING, "Discord responded with HTTP response code " + responseCode);
+                        }
+
+                        con.getInputStream().close();
+                        con.disconnect();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
 
-                    con.getInputStream().close();
-                    con.disconnect();
+                });
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            });
+            }
 
         } else {
             throw new IllegalArgumentException("Message must not exceed 2,000 characters");

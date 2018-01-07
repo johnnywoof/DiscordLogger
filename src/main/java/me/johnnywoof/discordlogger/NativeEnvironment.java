@@ -1,5 +1,6 @@
 package me.johnnywoof.discordlogger;
 
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public interface NativeEnvironment {
@@ -10,8 +11,9 @@ public interface NativeEnvironment {
 
     ConfigSettings getDiscordLoggerConfig();
 
-    /* Schedulers */
     void runAsync(Runnable runnable);
+
+    void runAsyncDelayed(Runnable runnable, long delay, TimeUnit timeUnit);
 
     void hookLogStreams() throws Exception;
 

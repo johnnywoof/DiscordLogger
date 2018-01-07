@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -91,6 +92,11 @@ public class BungeeLoader extends Plugin implements NativeEnvironment {
     @Override
     public void runAsync(Runnable runnable) {
         this.getProxy().getScheduler().runAsync(this, runnable);
+    }
+
+    @Override
+    public void runAsyncDelayed(Runnable runnable, long delay, TimeUnit timeUnit) {
+        this.getProxy().getScheduler().schedule(this, runnable, delay, timeUnit);
     }
 
     @Override

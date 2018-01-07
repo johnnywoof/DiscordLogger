@@ -6,6 +6,7 @@ import java.util.logging.LogRecord;
 public class LogHandler extends Handler {
 
     private final DiscordLogger discordLogger;
+    private StringBuilder discordContent = new StringBuilder();
 
     public LogHandler(DiscordLogger discordLogger) {
         this.discordLogger = discordLogger;
@@ -18,16 +19,22 @@ public class LogHandler extends Handler {
             String logMessage = this.getFormatter() != null ? this.getFormatter().formatMessage(record) : record.getMessage();
 
             if (this.discordLogger.getMessagePrefix() != null) {
-                this.discordLogger.postMessage(this.discordLogger.getMessagePrefix() + logMessage);
+                this.discordContent.append(this.discordLogger.getMessagePrefix()).append(logMessage).append("\n");
             } else {
-                this.discordLogger.postMessage(logMessage);
+                this.discordContent.append(logMessage).append("\n");
             }
         }
     }
 
     @Override
     public void flush() {
+        String finalized = this.discordContent.length() >= 2
+                ? this.discordContent.substring(0, this.discordContent.length() - 2)
+                : this.discordContent.toString();
 
+        this.discordLogger.postMessage(finalized);
+
+        this.discordContent = new StringBuilder();
     }
 
     @Override

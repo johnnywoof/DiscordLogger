@@ -9,6 +9,7 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -35,6 +36,11 @@ public class SpigotLoader extends JavaPlugin implements NativeEnvironment {
     @Override
     public void runAsync(Runnable runnable) {
         this.getServer().getScheduler().runTaskAsynchronously(this, runnable);
+    }
+
+    @Override
+    public void runAsyncDelayed(Runnable runnable, long delay, TimeUnit timeUnit) {
+        this.getServer().getScheduler().runTaskLaterAsynchronously(this, runnable, timeUnit.toSeconds(delay) * 20);//1 second = 20 ticks
     }
 
     @Override
