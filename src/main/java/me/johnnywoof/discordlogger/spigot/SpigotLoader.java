@@ -7,6 +7,7 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class SpigotLoader extends JavaPlugin implements NativeEnvironment {
 
@@ -33,12 +34,22 @@ public class SpigotLoader extends JavaPlugin implements NativeEnvironment {
     }
 
     @Override
+    public void hookLogStreams() throws Exception {
+        // TODO Spigot hook log
+    }
+
+    @Override
+    public void unhookLogStreams() throws Exception {
+        // TODO Spigot hook log
+    }
+
+    @Override
     public ConfigSettings getDiscordLoggerConfig() {
 
         Configuration config = this.getConfig();
 
         return new ConfigSettings(
-                config.getStringList("log-keywords"),
+                config.getStringList("log-levels").stream().map(Level::parse).collect(Collectors.toList()),
                 config.getString("discord-webhook-url"),
                 config.getString("http-user-agent"),
                 config.getString("message-prefix")

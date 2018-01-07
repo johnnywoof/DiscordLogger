@@ -13,4 +13,8 @@ public interface NativeEnvironment {
     /* Schedulers */
     void runAsync(Runnable runnable);
 
+    void hookLogStreams() throws Exception;
+
+    void unhookLogStreams() throws Exception;
+
 }

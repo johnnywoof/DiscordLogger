@@ -23,7 +23,7 @@ public class DiscordLogger {
     private URL discordWebhookURL;
     private String userAgent;
     private String messagePrefix;
-    private Collection<String> keywords;
+    private Collection<Level> loggedLevels;
 
     public DiscordLogger(NativeEnvironment nativeEnvironment) {
         this.nativeEnvironment = nativeEnvironment;
@@ -40,8 +40,8 @@ public class DiscordLogger {
             return;
         }
 
-        if (settings.keywords == null || settings.keywords.isEmpty()) {
-            this.nativeEnvironment.log(Level.WARNING, "No keywords were detected in configuration file!");
+        if (settings.levels == null || settings.levels.isEmpty()) {
+            this.nativeEnvironment.log(Level.WARNING, "No log levels were detected in configuration file!");
             return;
         }
 
@@ -50,7 +50,7 @@ public class DiscordLogger {
             return;
         }
 
-        this.keywords = Collections.unmodifiableCollection(settings.keywords);
+        this.loggedLevels = Collections.unmodifiableCollection(settings.levels);
         this.userAgent = (settings.userAgent == null || settings.userAgent.isEmpty()) ? "DiscordLogger" : settings.userAgent;
         this.messagePrefix = (settings.messagePrefix == null || settings.messagePrefix.isEmpty()) ? null : settings.messagePrefix;
 
@@ -70,27 +70,31 @@ public class DiscordLogger {
             return;
         }
 
-        System.setOut(new ConsoleReaderPrintStream(this, System.out));
-        System.setErr(new ConsoleReaderPrintStream(this, System.err));
+        try {
+
+            this.nativeEnvironment.hookLogStreams();
+
+            this.nativeEnvironment.log(Level.INFO, "Successfully hooked logger stream");
+
+        } catch (Exception e) {
+            this.nativeEnvironment.log(Level.SEVERE, "Failed to hook logger stream");
+            e.printStackTrace();
+        }
 
     }
 
     public void onDisable() {
 
-        if (System.out instanceof ConsoleReaderPrintStream)
-            System.setOut(((ConsoleReaderPrintStream) System.out).getRawStream());
-
-        if (System.err instanceof ConsoleReaderPrintStream)
-            System.setErr(((ConsoleReaderPrintStream) System.err).getRawStream());
+        try {
+            this.nativeEnvironment.unhookLogStreams();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
     public String getMessagePrefix() {
         return this.messagePrefix;
-    }
-
-    public Collection<String> getKeywords() {
-        return this.keywords;
     }
 
     void postMessage(final String message) {
@@ -146,4 +150,7 @@ public class DiscordLogger {
         }
     }
 
+    public Collection<Level> getLoggedLevels() {
+        return loggedLevels;
+    }
 }

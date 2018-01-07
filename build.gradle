@@ -11,16 +11,20 @@ repositories {
         url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
     }
 
-    maven {
-        name 'Bungeecord Repo'
-        url 'https://oss.sonatype.org/content/repositories/snapshots'
+    // Custom repo for BungeeCord
+    // That way, we can access the internal code, not just the API
+    ivy {
+        url 'https://ci.md-5.net/job/'
+        layout 'pattern', {
+            artifact '[artifact]/[revision]/artifact/bootstrap/target/[artifact].jar'
+        }
     }
 
     jcenter()
 }
 
 dependencies {
-    compile (group: 'net.md-5', name: 'bungeecord-api', version: '1.12-SNAPSHOT')
+    compile (name: 'BungeeCord', version: '1288') // Build number, version 1.12.2
     compile (group: 'org.spigotmc', name: 'spigot-api', version: '1.12.2-R0.1-SNAPSHOT')
 }
 
@@ -28,7 +32,7 @@ processResources {
     inputs.property "version", project.version
 
     from(sourceSets.main.resources.srcDirs) {
-        include 'plugin.yml', 'bungee.yml'
+        include '*.yml'
         // replace version and mcversion
         expand 'version': project.version
     }
