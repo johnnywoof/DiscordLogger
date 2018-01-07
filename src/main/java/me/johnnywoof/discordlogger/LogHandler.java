@@ -50,7 +50,7 @@ public class LogHandler extends Handler {
 
                 }
 
-                this.discordContent.replace(0, message.length(), "");//Clear it out
+                this.discordContent = this.discordContent.replace(0, message.length(), "");//Clear it out
 
             } else {
                 message = this.discordContent;
