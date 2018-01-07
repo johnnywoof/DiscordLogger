@@ -130,7 +130,9 @@ public class DiscordLogger {
 
                     con.setDoOutput(true);
                     DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                    wr.writeBytes(new Gson().toJson(new Snowflake(message)));
+
+                    // Discord seems to only accepts ASCII characters.
+                    wr.writeBytes(new Gson().toJson(new Snowflake(flatternToAscii(message))));
                     wr.flush();
                     wr.close();
 
@@ -152,6 +154,17 @@ public class DiscordLogger {
         } else {
             throw new IllegalArgumentException("Message must not exceed 2,000 characters");
         }
+    }
+
+    private static String flatternToAscii(String in) {
+        StringBuilder out = new StringBuilder();
+        for (char ch : in.toCharArray()) {
+            if (ch <= 127)
+                out.append(ch);
+            else
+                out.append("\\u").append(String.format("%04x", (int) ch));
+        }
+        return out.toString();
     }
 
     public Collection<Level> getLoggedLevels() {
