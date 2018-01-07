@@ -14,10 +14,13 @@ public class LogHandler extends Handler {
     @Override
     public void publish(LogRecord record) {
         if (this.discordLogger.getLoggedLevels().contains(record.getLevel())) {
+
+            String logMessage = this.getFormatter().formatMessage(record);
+
             if (this.discordLogger.getMessagePrefix() != null) {
-                this.discordLogger.postMessage(this.discordLogger.getMessagePrefix() + record.getMessage());
+                this.discordLogger.postMessage(this.discordLogger.getMessagePrefix() + logMessage);
             } else {
-                this.discordLogger.postMessage(record.getMessage());
+                this.discordLogger.postMessage(logMessage);
             }
         }
     }

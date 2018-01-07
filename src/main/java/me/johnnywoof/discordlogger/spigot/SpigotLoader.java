@@ -2,11 +2,16 @@ package me.johnnywoof.discordlogger.spigot;
 
 import me.johnnywoof.discordlogger.ConfigSettings;
 import me.johnnywoof.discordlogger.DiscordLogger;
+import me.johnnywoof.discordlogger.LogHandler;
 import me.johnnywoof.discordlogger.NativeEnvironment;
+import net.md_5.bungee.api.ProxyServer;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Arrays;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class SpigotLoader extends JavaPlugin implements NativeEnvironment {
@@ -35,12 +40,18 @@ public class SpigotLoader extends JavaPlugin implements NativeEnvironment {
 
     @Override
     public void hookLogStreams() throws Exception {
-        // TODO Spigot hook log
+        Bukkit.getLogger().addHandler(new LogHandler(this.discordLogger));
     }
 
     @Override
     public void unhookLogStreams() throws Exception {
-        // TODO Spigot hook log
+
+        Logger logger = Bukkit.getLogger();
+
+        Arrays.stream(logger.getHandlers())
+                .filter(handler -> handler instanceof LogHandler)
+                .forEach(logger::removeHandler);
+
     }
 
     @Override
