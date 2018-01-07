@@ -13,10 +13,12 @@ public interface NativeEnvironment {
 
     void runAsync(Runnable runnable);
 
-    void runAsyncDelayed(Runnable runnable, long delay, TimeUnit timeUnit);
+    void runAsyncTimer(Runnable runnable, long delay, TimeUnit timeUnit);
 
     void hookLogStreams() throws Exception;
 
     void unhookLogStreams() throws Exception;
+
+    void flushLogHook();
 
 }

@@ -24,7 +24,6 @@ public class DiscordLogger {
     private String userAgent;
     private String messagePrefix;
     private Collection<Level> loggedLevels;
-    private long lastSent;
 
     public DiscordLogger(NativeEnvironment nativeEnvironment) {
         this.nativeEnvironment = nativeEnvironment;
@@ -75,6 +74,10 @@ public class DiscordLogger {
 
             this.nativeEnvironment.hookLogStreams();
 
+            // Timer task will be closed in Spigot and Bungeecord once plugin is disabled
+            // Consider a new method to disable timer tasks if adding a new native environment
+            this.nativeEnvironment.runAsyncTimer(new FlushLogHandlerTask(this.nativeEnvironment), 30, TimeUnit.SECONDS);
+
             this.nativeEnvironment.log(Level.INFO, "Successfully hooked logger stream");
 
         } catch (Exception e) {
@@ -116,48 +119,35 @@ public class DiscordLogger {
             //Add it to the throttle
             this.recentMessages.put(hash, System.currentTimeMillis());
 
-            long diffSent = (System.currentTimeMillis() - this.lastSent);
+            this.nativeEnvironment.runAsync(() -> {
 
-            this.lastSent = System.currentTimeMillis();
+                try {
 
-            if (diffSent <= 3000) { //Discord rate limit
+                    HttpsURLConnection con = (HttpsURLConnection) DiscordLogger.this.discordWebhookURL.openConnection();
 
-                //Wait three seconds then retry
-                this.nativeEnvironment.runAsyncDelayed(() -> postMessage(message), 3, TimeUnit.SECONDS);
+                    con.setRequestMethod("POST");
+                    con.setRequestProperty("User-Agent", DiscordLogger.this.userAgent);
 
-            } else {
+                    con.setDoOutput(true);
+                    DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+                    wr.writeBytes(new Gson().toJson(new Snowflake(message)));
+                    wr.flush();
+                    wr.close();
 
-                this.nativeEnvironment.runAsync(() -> {
+                    int responseCode = con.getResponseCode();
 
-                    try {
-
-                        HttpsURLConnection con = (HttpsURLConnection) DiscordLogger.this.discordWebhookURL.openConnection();
-
-                        con.setRequestMethod("POST");
-                        con.setRequestProperty("User-Agent", DiscordLogger.this.userAgent);
-
-                        con.setDoOutput(true);
-                        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                        wr.writeBytes(new Gson().toJson(new Snowflake(message)));
-                        wr.flush();
-                        wr.close();
-
-                        int responseCode = con.getResponseCode();
-
-                        if (responseCode != 204) {
-                            DiscordLogger.this.nativeEnvironment.log(Level.WARNING, "Discord responded with HTTP response code " + responseCode);
-                        }
-
-                        con.getInputStream().close();
-                        con.disconnect();
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    if (responseCode != 204) {
+                        DiscordLogger.this.nativeEnvironment.log(Level.WARNING, "Discord responded with HTTP response code " + responseCode);
                     }
 
-                });
+                    con.getInputStream().close();
+                    con.disconnect();
 
-            }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            });
 
         } else {
             throw new IllegalArgumentException("Message must not exceed 2,000 characters");

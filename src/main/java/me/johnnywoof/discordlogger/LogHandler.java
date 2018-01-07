@@ -28,18 +28,20 @@ public class LogHandler extends Handler {
 
     @Override
     public void flush() {
-        String finalized = this.discordContent.length() >= 2
-                ? this.discordContent.substring(0, this.discordContent.length() - 2)
-                : this.discordContent.toString();
 
-        this.discordLogger.postMessage(finalized);
+        if (this.discordContent.length() >= 2) {
 
-        this.discordContent = new StringBuilder();
+            this.discordLogger.postMessage(this.discordContent.substring(0, this.discordContent.length() - 2));
+            this.discordContent = new StringBuilder();
+
+        }
+
     }
 
     @Override
     public void close() throws SecurityException {
-
+        this.flush(); //Flush contents
+        this.discordContent = null; //Release memory
     }
 
 }

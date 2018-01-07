@@ -15,15 +15,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class BungeeLoader extends Plugin implements NativeEnvironment {
 
     private final DiscordLogger discordLogger = new DiscordLogger(this);
+    private LogHandler logHandler;
 
     @Override
     public void onEnable() {
@@ -95,27 +94,37 @@ public class BungeeLoader extends Plugin implements NativeEnvironment {
     }
 
     @Override
-    public void runAsyncDelayed(Runnable runnable, long delay, TimeUnit timeUnit) {
-        this.getProxy().getScheduler().schedule(this, runnable, delay, timeUnit);
+    public void runAsyncTimer(Runnable runnable, long delay, TimeUnit timeUnit) {
+        this.getProxy().getScheduler().schedule(this, runnable, 0, delay, timeUnit);
     }
 
     @Override
     public void hookLogStreams() throws Exception {
+        if (this.logHandler != null)
+            throw new IllegalStateException("Already hooked");
 
-        LogHandler logHandler = new LogHandler(this.discordLogger);
-        logHandler.setFormatter(new BungeeLogFormatter());
+        this.logHandler = new LogHandler(this.discordLogger);
+        this.logHandler.setFormatter(new BungeeLogFormatter());
 
-        BungeeCord.getInstance().getLogger().addHandler(logHandler);
+        BungeeCord.getInstance().getLogger().addHandler(this.logHandler);
     }
 
     @Override
     public void unhookLogStreams() {
 
-        Logger logger = BungeeCord.getInstance().getLogger();
+        if (this.logHandler != null) {
 
-        Arrays.stream(logger.getHandlers())
-                .filter(handler -> handler instanceof LogHandler)
-                .forEach(logger::removeHandler);
+            BungeeCord.getInstance().getLogger().removeHandler(this.logHandler);
+            this.logHandler.close();
+            this.logHandler = null;
 
+        }
+
+    }
+
+    @Override
+    public void flushLogHook() {
+        if (this.logHandler != null)
+            this.logHandler.flush();
     }
 }
