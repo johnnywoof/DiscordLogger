@@ -7,10 +7,16 @@ import java.util.logging.LogRecord;
 public class LogHandler extends Handler {
 
     private final DiscordLogger discordLogger;
-    private StringBuilder discordContent = new StringBuilder();
+    private StringBuilder discordContent;
 
     public LogHandler(DiscordLogger discordLogger) {
         this.discordLogger = discordLogger;
+        this.init();
+    }
+
+    private void init() {
+        this.discordContent = new StringBuilder();
+        this.discordContent.append("```");
     }
 
     @Override
@@ -39,17 +45,17 @@ public class LogHandler extends Handler {
 
             StringBuilder message;
 
-            if (this.discordContent.length() >= 2000) {
+            if (this.discordContent.length() >= (DiscordLogger.MAX_DISCORD_CHARACTERS - 3)) {
 
                 message = new StringBuilder();
                 String[] lines = this.discordContent.toString().split("\n");
                 int index = 0;
 
-                while (message.length() < 2000) {
+                while (message.length() < (DiscordLogger.MAX_DISCORD_CHARACTERS - 3)) {
 
                     int size = lines[index].length();
 
-                    if ((message.length() + size) >= 2000)
+                    if ((message.length() + size) >= (DiscordLogger.MAX_DISCORD_CHARACTERS - 3))
                         break;
 
                     message.append(lines[index++]);
@@ -63,8 +69,10 @@ public class LogHandler extends Handler {
                 this.discordContent = new StringBuilder();
             }
 
+            message.append("```");
+
             this.discordLogger.postMessage(message.toString());
-            this.discordContent = new StringBuilder();
+            this.init();
 
         }
 

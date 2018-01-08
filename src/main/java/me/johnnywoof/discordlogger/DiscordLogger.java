@@ -14,6 +14,9 @@ import java.util.logging.Level;
 
 public class DiscordLogger {
 
+    // Maximum amount of chars allowed in one discord message
+    public static final int MAX_DISCORD_CHARACTERS = 2000;
+
     private final NativeEnvironment nativeEnvironment;
     private final Map<Integer, Long> recentMessages = new HashMap<>();
     private ConfigSettings settings;
@@ -65,7 +68,7 @@ public class DiscordLogger {
     }
 
     void postMessage(final String message) {
-        if (message.length() <= 2000) {
+        if (message.length() <= MAX_DISCORD_CHARACTERS) {
 
             //Generate a unique hash for the message.
             Integer hash = Hashing.md5().hashString(message, StandardCharsets.UTF_8).asInt();
@@ -115,7 +118,7 @@ public class DiscordLogger {
             });
 
         } else {
-            throw new IllegalArgumentException("Message must not exceed 2,000 characters");
+            throw new IllegalArgumentException("Message must not exceed " + MAX_DISCORD_CHARACTERS + " characters");
         }
     }
 
