@@ -13,6 +13,7 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -76,10 +77,11 @@ public class BungeeLoader extends Plugin implements NativeEnvironment {
 
             return new ConfigSettings(
                     config.getStringList("log-levels").stream().map(Level::parse).collect(Collectors.toList()),
-                    config.getString("discord-webhook-url"),
+                    config.getStringList("log-keywords"),
+                    new URL(config.getString("discord-webhook-url")),
                     config.getString("http-user-agent"),
-                    config.getString("message-prefix")
-            );
+                    config.getString("message-prefix"),
+                    config.getBoolean("prefix-log-level", true));
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -6,11 +6,7 @@ import com.google.gson.Gson;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -20,10 +16,7 @@ public class DiscordLogger {
 
     private final NativeEnvironment nativeEnvironment;
     private final Map<Integer, Long> recentMessages = new HashMap<>();
-    private URL discordWebhookURL;
-    private String userAgent;
-    private String messagePrefix;
-    private Collection<Level> loggedLevels;
+    private ConfigSettings settings;
 
     public DiscordLogger(NativeEnvironment nativeEnvironment) {
         this.nativeEnvironment = nativeEnvironment;
@@ -33,40 +26,10 @@ public class DiscordLogger {
 
         this.nativeEnvironment.saveDefaultConfig();
 
-        ConfigSettings settings = this.nativeEnvironment.getDiscordLoggerConfig();
+        this.settings = this.nativeEnvironment.getDiscordLoggerConfig();
 
-        if (settings == null) {
+        if (this.settings == null) {
             this.nativeEnvironment.log(Level.SEVERE, "Failed to load configuration settings");
-            return;
-        }
-
-        if (settings.levels == null || settings.levels.isEmpty()) {
-            this.nativeEnvironment.log(Level.WARNING, "No log levels were detected in configuration file!");
-            return;
-        }
-
-        if (settings.discordWebhookURL == null || settings.discordWebhookURL.isEmpty()) {
-            this.nativeEnvironment.log(Level.WARNING, "No discord webhook url was detected in the configuration file!");
-            return;
-        }
-
-        this.loggedLevels = Collections.unmodifiableCollection(settings.levels);
-        this.userAgent = (settings.userAgent == null || settings.userAgent.isEmpty()) ? "DiscordLogger" : settings.userAgent;
-        this.messagePrefix = (settings.messagePrefix == null || settings.messagePrefix.isEmpty()) ? null : settings.messagePrefix;
-
-        if (!"DiscordLogger".equals(this.userAgent))
-            this.nativeEnvironment.log(Level.INFO, "User-Agent is " + this.userAgent);
-
-        if (settings.messagePrefix != null)
-            this.nativeEnvironment.log(Level.INFO, "Message prefix is " + this.messagePrefix);
-
-        try {
-
-            this.discordWebhookURL = new URL(settings.discordWebhookURL);
-
-        } catch (MalformedURLException e) {
-            this.nativeEnvironment.log(Level.SEVERE, "Exception when creating URL object");
-            e.printStackTrace();
             return;
         }
 
@@ -97,8 +60,8 @@ public class DiscordLogger {
 
     }
 
-    public String getMessagePrefix() {
-        return this.messagePrefix;
+    public ConfigSettings getSettings() {
+        return this.settings;
     }
 
     void postMessage(final String message) {
@@ -123,10 +86,10 @@ public class DiscordLogger {
 
                 try {
 
-                    HttpsURLConnection con = (HttpsURLConnection) DiscordLogger.this.discordWebhookURL.openConnection();
+                    HttpsURLConnection con = (HttpsURLConnection) DiscordLogger.this.settings.discordWebhookURL.openConnection();
 
                     con.setRequestMethod("POST");
-                    con.setRequestProperty("User-Agent", DiscordLogger.this.userAgent);
+                    con.setRequestProperty("User-Agent", DiscordLogger.this.settings.userAgent);
 
                     con.setDoOutput(true);
                     DataOutputStream wr = new DataOutputStream(con.getOutputStream());
@@ -167,7 +130,4 @@ public class DiscordLogger {
         return out.toString();
     }
 
-    public Collection<Level> getLoggedLevels() {
-        return loggedLevels;
-    }
 }

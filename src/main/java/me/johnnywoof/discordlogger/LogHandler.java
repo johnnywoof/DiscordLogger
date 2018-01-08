@@ -1,5 +1,6 @@
 package me.johnnywoof.discordlogger;
 
+import java.util.Arrays;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
@@ -14,15 +15,20 @@ public class LogHandler extends Handler {
 
     @Override
     public void publish(LogRecord record) {
-        if (this.discordLogger.getLoggedLevels().contains(record.getLevel())) {
 
-            String logMessage = this.getFormatter() != null ? this.getFormatter().formatMessage(record) : record.getMessage();
+        String logMessage = this.getFormatter() != null ? this.getFormatter().formatMessage(record) : record.getMessage();
 
-            if (this.discordLogger.getMessagePrefix() != null) {
-                this.discordContent.append(this.discordLogger.getMessagePrefix()).append(logMessage).append("\n");
-            } else {
-                this.discordContent.append(logMessage).append("\n");
-            }
+        if (this.discordLogger.getSettings().levels.contains(record.getLevel())
+                || Arrays.stream(logMessage.split(" ")).anyMatch(s -> this.discordLogger.getSettings().keywords.contains(s))) {
+
+            if (this.discordLogger.getSettings().prefixLogLevels)
+                this.discordContent.append("[").append(record.getLevel()).append("] ");
+
+            if (this.discordLogger.getSettings().messagePrefix != null)
+                this.discordContent.append(this.discordLogger.getSettings().messagePrefix);
+
+            this.discordContent.append(logMessage).append("\n");
+
         }
     }
 

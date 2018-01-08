@@ -6,6 +6,12 @@ http-user-agent: 'DiscordLogger'
 # The prefix to prepend to the log message when submitting it to web hook
 message-prefix: ''
 
+# If to prefix the log level
+prefix-log-level: true
+
+log-keywords:
+  - ''
+
 # The type of log levels to submit for Discord
 log-levels:
   - 'SEVERE'
