@@ -24,8 +24,9 @@ public class LogHandler extends Handler {
 
         String logMessage = this.getFormatter() != null ? this.getFormatter().formatMessage(record) : record.getMessage();
 
-        if (this.discordLogger.getSettings().levels.contains(record.getLevel())
-                || Arrays.stream(logMessage.split(" ")).anyMatch(s -> this.discordLogger.getSettings().keywords.contains(s))) {
+        if ((this.discordLogger.getSettings().levels.contains(record.getLevel())
+                || Arrays.stream(logMessage.split(" ")).anyMatch(s -> this.discordLogger.getSettings().keywords.contains(s)))
+                && this.discordLogger.getSettings().ignoredPrefixes.stream().noneMatch(logMessage::startsWith)) {
 
             if (this.discordLogger.getSettings().prefixLogLevels)
                 this.discordContent.append("[").append(record.getLevel()).append("] ");
@@ -41,7 +42,7 @@ public class LogHandler extends Handler {
     @Override
     public void flush() {
 
-        if (this.discordContent.length() >= 2) {
+        if (this.discordContent.length() > 3) {
 
             StringBuilder message;
 

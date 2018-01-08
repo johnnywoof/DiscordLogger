@@ -81,6 +81,7 @@ public class SpigotLoader extends JavaPlugin implements NativeEnvironment {
             return new ConfigSettings(
                     config.getStringList("log-levels").stream().map(Level::parse).collect(Collectors.toList()),
                     config.getStringList("log-keywords"),
+                    config.getStringList("ignored-log-prefixes"),
                     new URL(config.getString("discord-webhook-url")),
                     config.getString("http-user-agent"),
                     config.getString("message-prefix"),

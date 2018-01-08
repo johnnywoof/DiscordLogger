@@ -6,6 +6,11 @@ http-user-agent: 'DiscordLogger'
 # The prefix to prepend to the log message when submitting it to web hook
 message-prefix: ''
 
+# Prefixes to ignore
+ignored-log-prefixes:
+  - '    at java.'
+  - '    at sun.'
+
 # If to prefix the log level
 prefix-log-level: true
 
