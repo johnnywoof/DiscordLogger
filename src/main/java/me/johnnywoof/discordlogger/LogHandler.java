@@ -26,7 +26,7 @@ public class LogHandler extends Handler {
 
         if ((this.discordLogger.getSettings().levels.contains(record.getLevel())
                 || Arrays.stream(logMessage.split(" ")).anyMatch(s -> this.discordLogger.getSettings().keywords.contains(s)))
-                && this.discordLogger.getSettings().ignoredPrefixes.stream().noneMatch(logMessage::startsWith)) {
+                && this.checkIgnoredPrefix(logMessage)) {
 
             if (this.discordLogger.getSettings().prefixLogLevels)
                 this.discordContent.append("[").append(record.getLevel()).append("] ");
@@ -37,6 +37,15 @@ public class LogHandler extends Handler {
             this.discordContent.append(logMessage).append("\n");
 
         }
+    }
+
+    private boolean checkIgnoredPrefix(String message) {
+        message = message.trim();
+        for (String s : this.discordLogger.getSettings().ignoredPrefixes)
+            if (message.startsWith(s))
+                return false;
+
+        return true;
     }
 
     @Override

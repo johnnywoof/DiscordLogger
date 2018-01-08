@@ -38,14 +38,13 @@ processResources {
     inputs.property "version", project.version
 
     from(sourceSets.main.resources.srcDirs) {
-        include 'plugin.yml'
-        include 'bungee.yml'
+        include '**/*.yml'
         // replace version and mcversion
         expand 'version': project.version
     }
 
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'plugin.yml'
+        exclude '**/*.yml'
     }
 }
 

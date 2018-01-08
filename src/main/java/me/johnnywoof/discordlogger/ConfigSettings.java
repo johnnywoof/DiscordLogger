@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class ConfigSettings {
 
@@ -17,11 +18,12 @@ public class ConfigSettings {
 
     public ConfigSettings(List<Level> levels, List<String> keywords, List<String> ignoredPrefixes, URL discordWebhookURL, String userAgent, String messagePrefix, boolean prefixLogLevels) {
         this.levels = Collections.unmodifiableList(levels);
-        this.keywords = Collections.unmodifiableList(keywords);
-        this.ignoredPrefixes = Collections.unmodifiableList(ignoredPrefixes);
+        this.keywords = Collections.unmodifiableList(keywords.stream().map(String::trim).collect(Collectors.toList()));
+        this.ignoredPrefixes = Collections.unmodifiableList(ignoredPrefixes.stream().map(String::trim).collect(Collectors.toList()));
         this.discordWebhookURL = discordWebhookURL;
         this.userAgent = userAgent;
         this.messagePrefix = messagePrefix;
         this.prefixLogLevels = prefixLogLevels;
     }
+
 }
