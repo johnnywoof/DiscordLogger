@@ -15,8 +15,10 @@ public class ConfigSettings {
     public final String userAgent;
     public final String messagePrefix;
     public final boolean prefixLogLevels;
+    public final boolean removeURLs, removeIPAddresses;
 
-    public ConfigSettings(List<Level> levels, List<String> keywords, List<String> ignoredPrefixes, URL discordWebhookURL, String userAgent, String messagePrefix, boolean prefixLogLevels) {
+    public ConfigSettings(List<Level> levels, List<String> keywords, List<String> ignoredPrefixes, URL discordWebhookURL,
+                          String userAgent, String messagePrefix, boolean prefixLogLevels, boolean removeURLs, boolean removeIPAddresses) {
         this.levels = Collections.unmodifiableList(levels);
         this.keywords = Collections.unmodifiableList(keywords.stream().map(String::trim).collect(Collectors.toList()));
         this.ignoredPrefixes = Collections.unmodifiableList(ignoredPrefixes.stream().map(String::trim).collect(Collectors.toList()));
@@ -24,6 +26,8 @@ public class ConfigSettings {
         this.userAgent = userAgent;
         this.messagePrefix = messagePrefix;
         this.prefixLogLevels = prefixLogLevels;
+        this.removeURLs = removeURLs;
+        this.removeIPAddresses = removeIPAddresses;
     }
 
 }

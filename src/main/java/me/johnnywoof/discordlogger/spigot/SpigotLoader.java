@@ -85,7 +85,9 @@ public class SpigotLoader extends JavaPlugin implements NativeEnvironment {
                     new URL(config.getString("discord-webhook-url")),
                     config.getString("http-user-agent"),
                     config.getString("message-prefix"),
-                    config.getBoolean("prefix-log-level", true));
+                    config.getBoolean("prefix-log-level", true),
+                    config.getBoolean("remove-urls", true),
+                    config.getBoolean("remove-ips", true));
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

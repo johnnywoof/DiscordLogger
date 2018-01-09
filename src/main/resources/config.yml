@@ -14,10 +14,16 @@ ignored-log-prefixes:
 # If to prefix the log level
 prefix-log-level: true
 
+# If to remove ip addresses before submitting data to Discord
+remove-ips: true
+
+# If to remove urls before submitting data to Discord
+remove-urls: true
+
+# Keywords are split by a space
 log-keywords:
   - ''
 
 # The type of log levels to submit for Discord
 log-levels:
   - 'SEVERE'
-  - 'WARNING'

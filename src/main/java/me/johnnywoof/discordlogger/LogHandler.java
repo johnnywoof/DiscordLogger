@@ -81,7 +81,15 @@ public class LogHandler extends Handler {
 
             message.append("```");
 
-            this.discordLogger.postMessage(message.toString());
+            String finalized = message.toString();
+
+            if (this.discordLogger.getSettings().removeIPAddresses)
+                finalized = finalized.replaceAll("(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})", "[Redacted IP]");
+
+            if (this.discordLogger.getSettings().removeURLs)
+                finalized = finalized.replaceAll("http.*?\\s", "[Redacted URL]");
+
+            this.discordLogger.postMessage(finalized);
             this.init();
 
         }
