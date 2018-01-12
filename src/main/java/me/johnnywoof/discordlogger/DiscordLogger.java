@@ -1,7 +1,6 @@
 package me.johnnywoof.discordlogger;
 
 import com.google.common.hash.Hashing;
-import com.google.gson.Gson;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.DataOutputStream;
@@ -13,9 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class DiscordLogger {
-
-    // Maximum amount of chars allowed in one discord message
-    public static final int MAX_DISCORD_CHARACTERS = 2000;
 
     private final NativeEnvironment nativeEnvironment;
     private final Map<Integer, Long> recentMessages = new HashMap<>();
@@ -67,59 +63,54 @@ public class DiscordLogger {
         return this.settings;
     }
 
-    void postMessage(final String message) {
-        if (message.length() <= MAX_DISCORD_CHARACTERS) {
+    void postMessage(final String payload) {
 
-            //Generate a unique hash for the message.
-            Integer hash = Hashing.md5().hashString(message, StandardCharsets.UTF_8).asInt();
+        //Generate a unique hash for the message.
+        Integer hash = Hashing.md5().hashString(payload, StandardCharsets.UTF_8).asInt();
 
-            //Don't spam discord with the same message
-            if (this.recentMessages.containsKey(hash)) {
-                if ((System.currentTimeMillis() - this.recentMessages.get(hash)) < TimeUnit.HOURS.toMillis(1))
-                    return;
-            }
+        //Don't spam discord with the same message
+        if (this.recentMessages.containsKey(hash)) {
+            if ((System.currentTimeMillis() - this.recentMessages.get(hash)) < TimeUnit.HOURS.toMillis(1))
+                return;
+        }
 
-            //Clean expired entries
-            this.recentMessages.entrySet().removeIf(en -> (System.currentTimeMillis() - en.getValue()) > TimeUnit.HOURS.toMillis(1));
+        //Clean expired entries
+        this.recentMessages.entrySet().removeIf(en -> (System.currentTimeMillis() - en.getValue()) > TimeUnit.HOURS.toMillis(1));
 
-            //Add it to the throttle
-            this.recentMessages.put(hash, System.currentTimeMillis());
+        //Add it to the throttle
+        this.recentMessages.put(hash, System.currentTimeMillis());
 
-            this.nativeEnvironment.runAsync(() -> {
+        this.nativeEnvironment.runAsync(() -> {
 
-                try {
+            try {
 
-                    HttpsURLConnection con = (HttpsURLConnection) DiscordLogger.this.settings.discordWebhookURL.openConnection();
+                HttpsURLConnection con = (HttpsURLConnection) DiscordLogger.this.settings.discordWebhookURL.openConnection();
 
-                    con.setRequestMethod("POST");
-                    con.setRequestProperty("User-Agent", DiscordLogger.this.settings.userAgent);
+                con.setRequestMethod("POST");
+                con.setRequestProperty("User-Agent", DiscordLogger.this.settings.userAgent);
 
-                    con.setDoOutput(true);
-                    DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+                con.setDoOutput(true);
+                DataOutputStream wr = new DataOutputStream(con.getOutputStream());
 
-                    // Discord seems to only accepts ASCII characters.
-                    wr.writeBytes(new Gson().toJson(new Snowflake(flatternToAscii(message))));
-                    wr.flush();
-                    wr.close();
+                wr.writeBytes(payload);
+                wr.flush();
+                wr.close();
 
-                    int responseCode = con.getResponseCode();
+                int responseCode = con.getResponseCode();
 
-                    if (responseCode != 204) {
-                        DiscordLogger.this.nativeEnvironment.log(Level.WARNING, "Discord responded with HTTP response code " + responseCode);
-                    }
-
-                    con.getInputStream().close();
-                    con.disconnect();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (responseCode != 204) {
+                    DiscordLogger.this.nativeEnvironment.log(Level.WARNING, "Discord responded with HTTP response code " + responseCode);
                 }
 
-            });
+                con.getInputStream().close();
+                con.disconnect();
 
-        } else {
-            throw new IllegalArgumentException("Message must not exceed " + MAX_DISCORD_CHARACTERS + " characters");
-        }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        });
+
     }
 
     private static String flatternToAscii(String in) {
