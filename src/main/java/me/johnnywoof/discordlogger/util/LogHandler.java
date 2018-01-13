@@ -4,11 +4,16 @@ import me.johnnywoof.discordlogger.DiscordLogger;
 import me.johnnywoof.discordlogger.formatting.EmbedBuilder;
 import me.johnnywoof.discordlogger.formatting.WebhookBuilder;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 public class LogHandler extends Handler {
+
+    private static final DateFormat FOOTER_FORMAT = new SimpleDateFormat("E, M d, y | k:m:s a");
 
     private final DiscordLogger discordLogger;
     private WebhookBuilder builder = new WebhookBuilder();
@@ -48,6 +53,8 @@ public class LogHandler extends Handler {
                 boolean inline = Boolean.parseBoolean(objects[2].toString());
 
                 eBuilder.addField(header, content, inline);
+                eBuilder.setFooter(FOOTER_FORMAT.format(new Date()));
+
                 this.builder.addEmbed(eBuilder);
             }
         }
