@@ -55,7 +55,7 @@ public class WebhookBuilder {
         return this;
     }
 
-    private String redact(String message) {
+    public String redact(String message) {
         if (redactIP)
             message = message.replaceAll("(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})", "[Redacted IP]");
 

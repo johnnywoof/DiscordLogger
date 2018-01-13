@@ -42,15 +42,9 @@ public class LogHandler extends Handler {
         boolean isWatched = Arrays.stream(logMessage.split(" ")).anyMatch(s -> this.discordLogger.getSettings().keywords.contains(s));
         boolean isIgnoredPrefix = this.discordLogger.getSettings().ignoredPrefixes.stream().anyMatch(logMessage::startsWith);
 
-        //System.out.println("Is Word Ignored: " + isIgnoredWord);
-        //System.out.println("Is Level: " + isLevel);
-        //System.out.println("Is Watched: " + isWatched);
-        //System.out.println("Is Prefix Ignored: " + isIgnoredPrefix);
-        //System.out.println("Value: " + ((isLevel || isWatched) && !isIgnoredPrefix && !isIgnoredWord));
-
         if ((isLevel || isWatched) && !isIgnoredPrefix && !isIgnoredWord) {
 
-            for (Object[] objects : discordLogger.getEnvironment().logToEmbedList(logMessage)) {
+            for (Object[] objects : discordLogger.getEnvironment().logToEmbedList(this.builder.redact(logMessage))) {
 
                 EmbedBuilder eBuilder = new EmbedBuilder();
                 eBuilder.setColor(LogColor.getFrom(record.getLevel()).getLoggingColor());
