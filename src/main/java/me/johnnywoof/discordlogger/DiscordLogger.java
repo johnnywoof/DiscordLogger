@@ -103,6 +103,7 @@ public class DiscordLogger {
 
             } catch (IOException e) {
                 e.printStackTrace();
+                nativeEnvironment.log(Level.SEVERE, payload.toJsonString());
             }
 
         });

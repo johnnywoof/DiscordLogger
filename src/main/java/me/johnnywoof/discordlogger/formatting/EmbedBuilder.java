@@ -188,6 +188,24 @@ public class EmbedBuilder {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "EmbedBuilder{" +
+                "title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", url='" + url + '\'' +
+                ", color=" + color +
+                ", footerText='" + footerText + '\'' +
+                ", footerIconUrl='" + footerIconUrl + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", authorName='" + authorName + '\'' +
+                ", authorUrl='" + authorUrl + '\'' +
+                ", authorIconUrl='" + authorIconUrl + '\'' +
+                ", thumbnailUrl='" + thumbnailUrl + '\'' +
+                ", fields=" + fields +
+                '}';
+    }
+
     /**
      * Gets the embed as a {@link JsonObject}. This is what is sent to Discord.
      *

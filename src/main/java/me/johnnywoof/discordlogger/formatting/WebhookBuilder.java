@@ -115,6 +115,16 @@ public class WebhookBuilder {
         return responseLog;
     }
 
+    public String toJsonString() {
+        JsonObject payloadJson = new JsonObject();
+
+        payloadJson.addProperty("content", messageBuilder.toString());
+        if (tts) payloadJson.addProperty("tts", true);
+        payloadJson.add("embeds", embedArray);
+
+        return GSON.toJson(payloadJson);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
