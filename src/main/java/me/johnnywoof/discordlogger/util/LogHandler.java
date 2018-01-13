@@ -37,7 +37,7 @@ public class LogHandler extends Handler {
         String removedCharStr = logMessage.replaceAll("\\)", "").replaceAll("\\(", "").replaceAll("\\[", "").replaceAll("\\]", "");
 
         boolean isIgnoredWord = Arrays.stream(logMessage.split(" ")).anyMatch(s -> this.discordLogger.getSettings().ignoredContent.contains(s))
-                || Arrays.stream(logMessage.split(" ")).anyMatch(s -> this.discordLogger.getSettings().ignoredContent.contains(s));
+                || Arrays.stream(removedCharStr.split(" ")).anyMatch(s -> this.discordLogger.getSettings().ignoredContent.contains(s));
         boolean isLevel = this.discordLogger.getSettings().levels.contains(record.getLevel());
         boolean isWatched = Arrays.stream(logMessage.split(" ")).anyMatch(s -> this.discordLogger.getSettings().keywords.contains(s));
         boolean isIgnoredPrefix = this.discordLogger.getSettings().ignoredPrefixes.stream().anyMatch(logMessage::startsWith);
