@@ -1,10 +1,10 @@
 package me.johnnywoof.discordlogger.bungee;
 
 import com.google.common.io.ByteStreams;
-import me.johnnywoof.discordlogger.ConfigSettings;
 import me.johnnywoof.discordlogger.DiscordLogger;
-import me.johnnywoof.discordlogger.LogHandler;
-import me.johnnywoof.discordlogger.NativeEnvironment;
+import me.johnnywoof.discordlogger.generic.NativeEnvironment;
+import me.johnnywoof.discordlogger.util.ConfigSettings;
+import me.johnnywoof.discordlogger.util.LogHandler;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
@@ -79,6 +79,7 @@ public class BungeeLoader extends Plugin implements NativeEnvironment {
                     config.getStringList("log-levels").stream().map(Level::parse).collect(Collectors.toList()),
                     config.getStringList("log-keywords"),
                     config.getStringList("ignored-log-prefixes"),
+                    config.getStringList("ignored-log-words"),
                     new URL(config.getString("discord-webhook-url")),
                     config.getString("http-user-agent"),
                     config.getString("message-prefix"),

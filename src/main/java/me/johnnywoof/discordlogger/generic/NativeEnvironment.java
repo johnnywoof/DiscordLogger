@@ -1,5 +1,9 @@
-package me.johnnywoof.discordlogger;
+package me.johnnywoof.discordlogger.generic;
 
+import me.johnnywoof.discordlogger.util.ConfigSettings;
+
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -20,5 +24,11 @@ public interface NativeEnvironment {
     void unhookLogStreams() throws Exception;
 
     void flushLogHook();
+
+    default List<Object[]> logToEmbedList(String str) {
+        List<Object[]> objList = new LinkedList<>();
+        objList.add(new Object[]{"Logged Message: ", str, true});
+        return objList;
+    }
 
 }

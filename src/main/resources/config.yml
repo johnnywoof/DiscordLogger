@@ -11,6 +11,10 @@ ignored-log-prefixes:
   - 'at java.'
   - 'at sun.'
 
+ignored-log-words:
+  - 'UpstreamBridge'
+  - 'InitialHandler'
+
 # If to prefix the log level
 prefix-log-level: true
 

@@ -1,9 +1,9 @@
 package me.johnnywoof.discordlogger.spigot;
 
-import me.johnnywoof.discordlogger.ConfigSettings;
 import me.johnnywoof.discordlogger.DiscordLogger;
-import me.johnnywoof.discordlogger.LogHandler;
-import me.johnnywoof.discordlogger.NativeEnvironment;
+import me.johnnywoof.discordlogger.generic.NativeEnvironment;
+import me.johnnywoof.discordlogger.util.ConfigSettings;
+import me.johnnywoof.discordlogger.util.LogHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -82,6 +82,7 @@ public class SpigotLoader extends JavaPlugin implements NativeEnvironment {
                     config.getStringList("log-levels").stream().map(Level::parse).collect(Collectors.toList()),
                     config.getStringList("log-keywords"),
                     config.getStringList("ignored-log-prefixes"),
+                    config.getStringList("ignored-log-words"),
                     new URL(config.getString("discord-webhook-url")),
                     config.getString("http-user-agent"),
                     config.getString("message-prefix"),

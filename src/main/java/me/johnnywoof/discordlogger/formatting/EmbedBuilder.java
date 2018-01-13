@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package me.johnnywoof.discordlogger;
+package me.johnnywoof.discordlogger.formatting;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

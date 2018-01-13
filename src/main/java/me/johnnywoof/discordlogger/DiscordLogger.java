@@ -1,11 +1,11 @@
 package me.johnnywoof.discordlogger;
 
 import com.google.common.hash.Hashing;
+import me.johnnywoof.discordlogger.formatting.WebhookBuilder;
+import me.johnnywoof.discordlogger.generic.NativeEnvironment;
+import me.johnnywoof.discordlogger.util.ConfigSettings;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -13,12 +13,24 @@ import java.util.logging.Level;
 
 public class DiscordLogger {
 
+    public static final int MAX_DISCORD_CHARACTERS = 2000;
     private final NativeEnvironment nativeEnvironment;
     private final Map<Integer, Long> recentMessages = new HashMap<>();
     private ConfigSettings settings;
 
     public DiscordLogger(NativeEnvironment nativeEnvironment) {
         this.nativeEnvironment = nativeEnvironment;
+    }
+
+    private static String flattenToAscii(String in) {
+        StringBuilder out = new StringBuilder();
+        for (char ch : in.toCharArray()) {
+            if (ch <= 127)
+                out.append(ch);
+            else
+                out.append("\\u").append(String.format("%04x", (int) ch));
+        }
+        return out.toString();
     }
 
     public void onEnable() {
@@ -38,7 +50,7 @@ public class DiscordLogger {
 
             // Timer task will be closed in Spigot and Bungeecord once plugin is disabled
             // Consider a new method to disable timer tasks if adding a new native environment
-            this.nativeEnvironment.runAsyncTimer(new FlushLogHandlerTask(this.nativeEnvironment), 30, TimeUnit.SECONDS);
+            this.nativeEnvironment.runAsyncTimer(nativeEnvironment::flushLogHook, 30, TimeUnit.SECONDS);
 
             this.nativeEnvironment.log(Level.INFO, "Successfully hooked logger stream");
 
@@ -63,10 +75,10 @@ public class DiscordLogger {
         return this.settings;
     }
 
-    void postMessage(final String payload) {
+    public void postMessage(final WebhookBuilder payload) {
 
         //Generate a unique hash for the message.
-        Integer hash = Hashing.md5().hashString(payload, StandardCharsets.UTF_8).asInt();
+        Integer hash = Hashing.md5().hashInt(payload.hashCode()).asInt();
 
         //Don't spam discord with the same message
         if (this.recentMessages.containsKey(hash)) {
@@ -84,26 +96,10 @@ public class DiscordLogger {
 
             try {
 
-                HttpsURLConnection con = (HttpsURLConnection) DiscordLogger.this.settings.discordWebhookURL.openConnection();
-
-                con.setRequestMethod("POST");
-                con.setRequestProperty("User-Agent", DiscordLogger.this.settings.userAgent);
-
-                con.setDoOutput(true);
-                DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-
-                wr.writeBytes(payload);
-                wr.flush();
-                wr.close();
-
-                int responseCode = con.getResponseCode();
-
-                if (responseCode != 204) {
-                    DiscordLogger.this.nativeEnvironment.log(Level.WARNING, "Discord responded with HTTP response code " + responseCode);
+                String response = payload.executeWith(DiscordLogger.this.settings.userAgent, DiscordLogger.this.settings.discordWebhookURL);
+                if (response != null) {
+                    nativeEnvironment.log(Level.INFO, response);
                 }
-
-                con.getInputStream().close();
-                con.disconnect();
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -113,15 +109,7 @@ public class DiscordLogger {
 
     }
 
-    private static String flatternToAscii(String in) {
-        StringBuilder out = new StringBuilder();
-        for (char ch : in.toCharArray()) {
-            if (ch <= 127)
-                out.append(ch);
-            else
-                out.append("\\u").append(String.format("%04x", (int) ch));
-        }
-        return out.toString();
+    public NativeEnvironment getEnvironment() {
+        return this.nativeEnvironment;
     }
-
 }
