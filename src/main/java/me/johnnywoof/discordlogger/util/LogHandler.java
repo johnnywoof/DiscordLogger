@@ -4,10 +4,13 @@ import me.johnnywoof.discordlogger.DiscordLogger;
 import me.johnnywoof.discordlogger.formatting.EmbedBuilder;
 import me.johnnywoof.discordlogger.formatting.WebhookBuilder;
 
+import java.awt.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
@@ -24,11 +27,10 @@ public class LogHandler extends Handler {
     }
 
     private void init() {
-        this.builder = new WebhookBuilder();
-        builder.setRedactIP(discordLogger.getSettings().removeIPAddresses);
-        builder.setRedactURL(discordLogger.getSettings().removeURLs);
+        this.builder = new WebhookBuilder(discordLogger.getSettings().removeURLs, discordLogger.getSettings().removeIPAddresses);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void publish(LogRecord record) {
 
@@ -36,26 +38,33 @@ public class LogHandler extends Handler {
         logMessage = logMessage.trim();
         String removedCharStr = logMessage.replaceAll("\\)", "").replaceAll("\\(", "").replaceAll("\\[", "").replaceAll("\\]", "");
 
-        boolean isIgnoredWord = Arrays.stream(logMessage.split(" ")).anyMatch(s -> this.discordLogger.getSettings().ignoredContent.contains(s))
-                || Arrays.stream(removedCharStr.split(" ")).anyMatch(s -> this.discordLogger.getSettings().ignoredContent.contains(s));
+        boolean isIgnoredContent = this.discordLogger.getSettings().ignoredContent.stream().anyMatch(logMessage::contains) ||
+                this.discordLogger.getSettings().ignoredContent.stream().anyMatch(removedCharStr::contains);
+
         boolean isLevel = this.discordLogger.getSettings().levels.contains(record.getLevel());
         boolean isWatched = Arrays.stream(logMessage.split(" ")).anyMatch(s -> this.discordLogger.getSettings().keywords.contains(s));
         boolean isIgnoredPrefix = this.discordLogger.getSettings().ignoredPrefixes.stream().anyMatch(logMessage::startsWith);
 
-        if ((isLevel || isWatched) && !isIgnoredPrefix && !isIgnoredWord) {
+        if ((isLevel || isWatched) && !isIgnoredPrefix && !isIgnoredContent) {
 
             for (Object[] objects : discordLogger.getEnvironment().logToEmbedList(this.builder.redact(logMessage))) {
 
                 EmbedBuilder eBuilder = new EmbedBuilder();
-                eBuilder.setColor(LogColor.getFrom(record.getLevel()).getLoggingColor());
+                Color color = LogColor.getFrom(record.getLevel()).getLoggingColor();
 
-                if (objects.length != 3)
+                if (objects.length < 2)
                     continue;
-                String header = objects[0].toString();
-                String content = objects[1].toString();
-                boolean inline = Boolean.parseBoolean(objects[2].toString());
+                Map<String, String> entryMap = new HashMap<>();
+                if (objects[0] instanceof Map)
+                    ((Map) objects[0]).forEach((key, value) -> entryMap.put(key.toString(), value.toString()));
+                boolean inline = Boolean.parseBoolean(objects[1].toString());
+                if (objects.length > 3) {
+                    if (objects[2] instanceof Color)
+                        color = (Color) objects[2];
+                }
 
-                eBuilder.addField(header, content, inline);
+                eBuilder.setColor(color);
+                entryMap.forEach((key, val) -> eBuilder.addField(key, val, inline));
                 eBuilder.setFooter(FOOTER_FORMAT.format(new Date()));
 
                 this.builder.addEmbed(eBuilder);

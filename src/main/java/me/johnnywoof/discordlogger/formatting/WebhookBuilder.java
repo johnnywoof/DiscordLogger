@@ -15,12 +15,22 @@ public class WebhookBuilder {
 
     private static final Gson GSON = new Gson();
 
-    private boolean redactURL = false;
-    private boolean redactIP = false;
+    private boolean redactURL = true;
+    private boolean redactIP = true;
 
     private StringBuilder messageBuilder = new StringBuilder();
     private boolean tts;
     private JsonArray embedArray = new JsonArray();
+
+    public WebhookBuilder() {
+
+    }
+
+    public WebhookBuilder(boolean removeURL, boolean removeIP) {
+        this.redactURL = removeURL;
+        this.redactIP = removeIP;
+        System.out.println("Current Values: " + removeURL + ", " + removeIP);
+    }
 
     public WebhookBuilder addEmbed(EmbedBuilder builder) {
         return addEmbed(builder.toJSONObject());
