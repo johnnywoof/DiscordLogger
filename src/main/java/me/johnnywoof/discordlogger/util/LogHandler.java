@@ -16,7 +16,7 @@ import java.util.logging.LogRecord;
 
 public class LogHandler extends Handler {
 
-    private static final DateFormat FOOTER_FORMAT = new SimpleDateFormat("E, MMMM d, y | k:m:s a");
+    private static final DateFormat FOOTER_FORMAT = new SimpleDateFormat("E, MMMM d, y | h:m:s a");
 
     private final DiscordLogger discordLogger;
     private WebhookBuilder builder = new WebhookBuilder();

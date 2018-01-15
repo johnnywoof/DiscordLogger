@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.logging.Level;
 
 public enum LogColor {
-    UNKNOWN(Level.ALL, Color.CYAN),
+    UNKNOWN(Level.ALL, Color.PINK),
     FINEST(Level.FINEST, Color.WHITE),
     FINER(Level.FINER, Color.LIGHT_GRAY),
     FINE(Level.FINE, Color.DARK_GRAY),
     CONFIG(Level.CONFIG, Color.GREEN),
-    INFO(Level.INFO, Color.YELLOW),
+    INFO(Level.INFO, Color.CYAN),
     WARNING(Level.WARNING, Color.ORANGE),
     SEVERE(Level.SEVERE, Color.RED);
 
