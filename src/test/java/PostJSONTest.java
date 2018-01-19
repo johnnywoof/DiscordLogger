@@ -17,12 +17,13 @@ public class PostJSONTest {
                 .addField("t", ".", false)
                 .addField("log1", "Log Value 1 Inline\n\n", true)
                 .addField("log2", "Log Value 2 Out of Line", false)
+                .addField("HELLO SECTIONS!", "§", false)
                 .setFooter("I have become invisible!").setTitle("ExCUUUUUUUSE ME").setColor(Color.RED);
         EmbedBuilder builder2 = new EmbedBuilder()
                 .addField("t", ".", false)
                 .addField("log1", "Log Value 1 Inline\n\n", true)
                 .addField("log2", "Log Value 2 Out of Line", false)
-                .setFooter("I have become invisible!").setTitle("ExCUUUUUUUSE ME").setColor(Color.RED);
+                .setFooter("I have become invisible!").setTitle("ExCUUUUUUUSE ME").setColor(Color.GREEN);
 
         webhookBuilder.addEmbed(builder).addEmbed(builder2);
 

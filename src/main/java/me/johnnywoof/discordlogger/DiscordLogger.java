@@ -7,12 +7,15 @@ import me.johnnywoof.discordlogger.util.ConfigSettings;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class DiscordLogger {
 
+    private static final List<DiscordLogger> INSTANCE_LIST = new CopyOnWriteArrayList<>();
     public static final int MAX_DISCORD_CHARACTERS = 2000;
     private final NativeEnvironment nativeEnvironment;
     private final Map<Integer, Long> recentMessages = new HashMap<>();
@@ -20,6 +23,14 @@ public class DiscordLogger {
 
     public DiscordLogger(NativeEnvironment nativeEnvironment) {
         this.nativeEnvironment = nativeEnvironment;
+        INSTANCE_LIST.add(this);
+    }
+
+    public static void postPluginMessage(final WebhookBuilder builder) {
+        //In theory there should only be one instance because there's only one plugin per server but w/e
+        for (DiscordLogger logger : INSTANCE_LIST) {
+            logger.postMessage(builder);
+        }
     }
 
     private static String flattenToAscii(String in) {
@@ -69,6 +80,7 @@ public class DiscordLogger {
             e.printStackTrace();
         }
 
+        INSTANCE_LIST.remove(this);
     }
 
     public ConfigSettings getSettings() {
